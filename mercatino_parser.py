@@ -4,13 +4,12 @@ from bs4 import BeautifulSoup
 
 file = open("mercatino.csv", "w", encoding='utf8')
 writer = csv.writer(file)
-writer.writerow(['Instrument', 'Price', 'Location', 'Time', 'Description'])
-
-page_number = 1
-url = "https://www.mercatinomusicale.com/mm/s_synth-a-tastiera-modulari_rp1-ct1-pg" + str(page_number) + ".html"
+writer.writerow(['Instrument', 'Price', 'Last Modified', 'Location', 'Description'])
 
 # range of page numbes set to url's standard
 for page_number in range(26):
+
+    url = "https://www.mercatinomusicale.com/mm/s_synth-a-tastiera-modulari_rp1-ct1-pg" + str(page_number) + ".html"
 
     page = requests.get(url)
     soup = BeautifulSoup(page.content, "html.parser")
@@ -45,8 +44,12 @@ for page_number in range(26):
             locations.append(location.text)
         else:
             locations.append("")
-        time = user.find('span', class_="data").text
-        times.append(time)
+
+        time = user.find('span', class_="data")
+        if time != None:
+            times.append(time.text)
+        else:
+            times.append("")
 
     for item in others:
         link = "mercatinomusicale.com" + item.find('a', href=True)['href']
@@ -58,8 +61,6 @@ for page_number in range(26):
                         times[i],
                         locations[i],
                         descriptions[i]])
-    
-    page_number += 1
     
 file.close()
 print("File closed")
